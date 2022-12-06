@@ -1,0 +1,72 @@
+version: "3.0"
+ 
+services:
+ nginx:
+     # build:
+     #     dockerfile: ./docker/nginx.dockerfile
+     #     context: .
+     image: nginx
+     container_name: ct-proxy-lb
+     ports:
+         - "80:80"
+         - "443:443"
+     networks:
+         - proxy-network
+     # depends_on:
+     #     - "app1"
+     #     - "app2"
+     #     - "app3"
+     volumes:
+         - "./ssl:/etc/nginx/ssl/"
+         - "./client_certs:/etc/nginx/client_certs/"
+         - "./default.conf:/etc/nginx/conf.d/default.conf"
+     depends_on:
+      - app
+
+ app:
+#    build:
+#        dockerfile: api/Dockerfile
+#        context: .
+   image: cryssantos9/app-mtls
+   container_name: node1
+   environment:
+       PORT: 8080 # .envs em tempo de execução diferente de .env
+       NODE_NAME: node1
+   ports:
+       - "8080"
+   networks:
+         - proxy-network
+   working_dir: "/usr/src/app"
+   volumes: 
+         - ./api:/usr/src/app
+         - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume
+
+   command: "npm run dev"
+  #  depends_on:
+  #    - nginx
+  
+ app2:
+   image: cryssantos9/app-mtls
+   container_name: node2
+   environment:
+       PORT: 8081 # .envs em tempo de execução diferente de .env
+       NODE_NAME: node2
+   ports:
+       - "8081"
+   networks:
+         - proxy-network
+   working_dir: "/usr/src/app"
+   volumes: 
+        - ./api:/usr/src/app
+#          - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume
+
+   command: "npm run dev"
+
+ 
+networks:
+ proxy-network:
+   # external: true
+   name: proxy-network
+   driver: bridge
+   driver_opts:
+     com.docker.network.driver.mtu: 1450

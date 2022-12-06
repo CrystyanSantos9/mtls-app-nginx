@@ -1,0 +1,147 @@
+1 - verificar informações do certificado
+
+openssl x509 -in ca-cert.cer -text
+
+1 - Criando certificado CA usado para assinar os certificados - Tanto client quanto server devem saber desse CA 
+
+Obs - A saída será uma par de chaves - ca.key e ca.crt 
+
+
+
+openssl req \
+  -newkey rsa:4096 \
+  -x509 \
+  -keyout ca.key \
+  -out ca.crt \
+  -days 30 \
+  -nodes \
+  -subj "/CN=api_my_ca"
+
+2 - Criar uma chave e um certificado para o lado do servidor - NODEjs criamos também um Pedido de requisição (CSR)
+
+O CSR é utilizado junto com a ca.key e o ca.crt para gerar o certificado assinado
+
+openssl req \
+  -newkey rsa:4096 \
+  -keyout server.key \
+  -out server.csr \
+  -nodes \
+  -days 30 \
+  -subj "/CN=api.local.com"
+
+  3 - Criando o certificado assinado pelo meu CA usando o meu pedido de requisição ( CSR )
+
+  openssl x509 \
+  -req \
+  -in server.csr \
+  -out server.crt \
+  -CA ca.crt \
+  -CAkey ca.key \
+  -CAcreateserial \
+  -days 30
+
+//PARTE DO CLIENTE - OU SEJA, OUTRO SERVIDOR OU SERVIÇO QUE VAI SE COMUNICAR COM O MEU SERVIDOR 
+
+1 - Criando o pedido de requisição ( CSR )
+
+openssl req \
+  -newkey rsa:4096 \
+  -keyout client.key \
+  -out client.csr \
+  -nodes \
+  -days 30 \
+  -subj "/CN=client.local.com"
+
+  2 - Criando o certificado auto assinado usando CSR criada e o mesmo CA usado no servidor 
+
+  openssl x509 \
+  -req \
+  -in client.csr \
+  -out client.crt \
+  -CA ca.crt \
+  -CAkey ca.key \
+  -CAcreateserial \
+  -days 30
+
+  4 - Criando .crt .csr para servidor 2 
+
+openssl req \
+  -newkey rsa:4096 \
+  -keyout server2.key \
+  -out server2.csr \
+  -nodes \
+  -days 30 \
+  -subj "/CN=api2.local.com"
+  
+openssl x509 \
+  -req \
+  -in server2.csr \
+  -out server2.crt \
+  -CA ca.crt \
+  -CAkey ca.key \
+  -CAcreateserial \
+  -days 30 
+
+  -  Usar o comando abaixo para ver o conteúdo do certificado 
+
+  openssl x509 -in ca.crt -text -noout
+
+  openssl x509 -in server.crt -text -noout
+
+  openssl x509 -in client.crt -text -noout
+
+
+//fazer essa chamada da pasta /mtls-comunication
+
+ curl https://api.local.com -v -k
+
+  curl https://api.local.com \
+  --cacert ssl/ca.crt \
+  --key ssl/client.key \
+  --cert ssl/client.crt
+
+  curl https://f0b9-186-231-200-61.sa.ngrok.io \
+  --cacert ssl/ca.crt \
+  --key ssl/client.key \
+  --cert ssl/client.crt -v
+
+  ngrok http https://api.local.com --mutual-tls-cas "ssl/ca.crt"
+
+  //Ver informações do certificado
+  openssl x509 -in ssl/ca.crt -noout -text
+
+  //tentar se comunicar com openssl e validar informações da cadeia
+  openssl s_client -connect api.local.com:443 
+
+  // se comunicando passando certificado do cliente 
+  openssl s_client -connect api.local.com:443 -servername api.local.com -CAfile ca.crt -cert client.crt -key client.key -debug
+
+# Fazendo chamada ao servidor utilizado certificado do cliente e CA 
+curl --cert /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.crt --key /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.key --cacert /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/ca.crt --resolve api2.local.com:443:192.168.1.8 https://api2.local.com 
+
+# não reconhece CA // se ela não estiver implatada localmente 
+curl --cert /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.crt --key /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.key --resolve api2.local.com:443:192.168.1.8 https://api2.local.com 
+
+# ADICIONAR CERTIFCADO AUTO ASSINADO NO JAVA
+
+# adicionar certificado auto assinado aos certificados confiáveis no java cacert keystore
+
+sudo keytool -importcert -file server2.crt -alias server2 -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit
+
+# remover certificado do Java Keystore 
+
+sudo keytool -delete -alias server2 -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit
+
+# -storepass é o valor de senha que coloco ao salvar esse certificado no java 
+
+Mais detalhes em:
+
+How to remove Imported certificates from Java Keystore
+https://docs.oracle.com/cd/E19683-01/817-2874/6migoia18/index.html
+
+How to import self-signed certificates to java Keystore 
+
+https://stackoverflow.com/questions/6908948/java-sun-security-provider-certpath-suncertpathbuilderexception-unable-to-find
+
+
+

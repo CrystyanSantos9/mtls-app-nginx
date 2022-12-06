@@ -1,0 +1,7 @@
+echo "Removing ..."
+sleep 2
+rm -rf *.crt 
+rm -rf *.key
+rm -rf *.srl
+rm -rf *.csr
+echo "finished...."
