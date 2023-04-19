@@ -43,6 +43,7 @@ services:
         #  - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume 
 
    command: "npm run dev"
+#    command: "node_modules/nodemon/bin/nodemon.js server.js"
   #  depends_on:
   #    - nginx
   
@@ -59,10 +60,11 @@ services:
    working_dir: "/usr/src/app"
    volumes: 
         - ./api:/usr/src/app
-        # somente se configurar verificação no app node
-#          - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume
+#         # somente se configurar verificação no app node
+# #          - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume
 
    command: "npm run dev"
+#    command: "node_modules/nodemon/bin/nodemon.js server.js"
 
  
 networks:
