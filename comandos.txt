@@ -13,7 +13,7 @@ openssl req \
   -x509 \
   -keyout ca.key \
   -out ca.crt \
-  -days 30 \
+  -days 365 \
   -nodes \
   -subj "/CN=api_my_ca"
 
@@ -26,8 +26,8 @@ openssl req \
   -keyout server.key \
   -out server.csr \
   -nodes \
-  -days 30 \
-  -subj "/CN=api.local.com"
+  -days 365 \
+  -subj "/CN=ldap.cryss.dev"
 
   3 - Criando o certificado assinado pelo meu CA usando o meu pedido de requisição ( CSR )
 
@@ -118,6 +118,15 @@ openssl x509 \
 
 # Fazendo chamada ao servidor utilizado certificado do cliente e CA 
 curl --cert /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.crt --key /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.key --cacert /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/ca.crt --resolve api2.local.com:443:192.168.1.8 https://api2.local.com 
+
+# Fazendo chamada utilizando CA - Para evitar erro de certificado expirado 
+curl --location --cacert ca.crt api.local.com -v 
+
+# Fazendo chamada configurando o tls mín e max 
+curl --location --tlsv1.2 --tls-max 1.2 --cacert ca.crt api.local.com -v 
+
+# mais dados aqui 
+https://superuser.com/questions/606598/specifying-minor-tls-version-when-using-curl
 
 # não reconhece CA // se ela não estiver implatada localmente 
 curl --cert /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.crt --key /home/crystyansantos/sensedia/certificados/mtls-comunication/ssl/client.key --resolve api2.local.com:443:192.168.1.8 https://api2.local.com 

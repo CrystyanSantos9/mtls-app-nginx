@@ -1,0 +1,6 @@
+filtrar por nome
+
+docker ps --filter name="node*"
+
+
+curl -X POST https://api.local.com/user -d '{"user":"user_teste_sensedia"}' -v -k

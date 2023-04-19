@@ -39,7 +39,8 @@ services:
    working_dir: "/usr/src/app"
    volumes: 
          - ./api:/usr/src/app
-         - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume
+         # somente se configurar verificação no app node
+        #  - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume 
 
    command: "npm run dev"
   #  depends_on:
@@ -58,6 +59,7 @@ services:
    working_dir: "/usr/src/app"
    volumes: 
         - ./api:/usr/src/app
+        # somente se configurar verificação no app node
 #          - ./ssl:/usr/src/app/ssl # precisa adicionar /ssl para diferenciar do primeiro volume
 
    command: "npm run dev"

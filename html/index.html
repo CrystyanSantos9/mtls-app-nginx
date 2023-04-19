@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+      <div>
+        <h1>Ativação de Preflight ( OPTIONS ) para método HTTP</h2>
+       
+        <div>
+          <h2>Ativação de Preflight para método GET</h2>
+          <button onclick="FetchMethod(getRequestOptions)"> GET https://api-support-aws.sensedia.com/csp/prd/tests/list</button>
+          <div id="getresponseheader"></div>
+        </div>
+        <hr>
+        <div>
+          <h2>Ativação de Preflight para método POST</h2>
+          <button onclick="FetchMethod(postRequestOptions)"> POST https://api-support-aws.sensedia.com/csp/prd/tests/list</button>
+          <div id="postresponseheader"></div>
+        </div>
+      </div>
+    </div>
+<script>
+
+const uriSensedia = "https://api-support-aws.sensedia.com/csp/prd/tests/user"
+
+const getresponseheader = document.querySelector('#getresponseheader')
+const postresponseheader = document.querySelector('#postresponseheader')
+
+//my header pré injetado
+const getRequestOptions = (myHeaders) => {
+ return {
+  method: 'GET',
+  redirect: 'follow',
+  class: new GetTemplate(),
+  headers: myHeaders,
+  // credentials: 'include'
+  };
+}
+
+//my header pré injetado
+const postRequestOptions = (myHeaders) => {
+ var raw = JSON.stringify({
+ "user":"user_teste_sensedia"
+ })
+ return {
+  method: 'POST',
+  redirect: 'follow',
+  class: new PostTemplate(),
+  headers: myHeaders,
+  boyd: raw
+  // credentials: 'include'
+  };
+}
+
+
+
+function FetchMethod(requestOptions){
+  
+  let myHeaders = new Headers();
+  myHeaders.append('Accept','application/vnd.api+json')
+  myHeaders.append('Content-Type','application/vnd.api+json')
+  myHeaders.append("data_final", "20230116");
+  myHeaders.append("authorization", "Bearer Yjc1MDRlYjUtOThkZS0zMTVjLWI4ZDQtMTRkYzFlYmU1ZDgxOmUxM2RhNTljLTg3YTEtNGNlNi1hNDIxLTQ5Njk4MjgxNDgxYw==");
+
+let responseText = '';
+
+fetch(uriSensedia, requestOptions(myHeaders))
+  .then(response => { 
+    // responseText = response.text()
+    return response.text()
+  })
+  .then(result => { 
+    const requestOptionsReturns = requestOptions()
+    defineTemplate(requestOptionsReturns.class,result)
+  })
+  .catch(error => console.log('error', error));
+
+}
+
+function defineTemplate(classSelected, text){
+  const ENTITY = classSelected;
+  ENTITY.appendText(text)
+}
+
+class GetTemplate {
+  constructor(element){
+    this.element = getresponseheader
+    this.method = 'GET'
+  }
+
+  appendText(text){
+    this.element.textContent = text
+  }
+}
+
+class PostTemplate {
+  constructor(element){
+    this.element = postresponseheader
+    this.method = 'POST'
+  }
+
+  appendText(text){
+    this.element.textContent = text
+  }
+}
+
+
+
+
+
+// var raw = JSON.stringify({
+//   "consumer": {
+//     "email": "kusi-23@hotmail.com",
+//     "firstName": "Kushtrim",
+//     "ipAddress": "109.40.242.139",
+//     "lastName": "Selimi"
+//   },
+//   "identifiers": {
+//     "endToEndId": "29339043522750736785",
+//     "merchantReference": "cf10c13a920811edb63e3a768aa93891001270"
+//   },
+//   "merchant": {
+//     "brandId": "08d6270f-8e53-4ead-a9c6-f4b98bfcd52f",
+//     "redirectUrl": "https://connectpay.int.gplat.app/redirect?pq=Oq7K38dFcZxBZ4KpHOJ6rfQ-FyCbNQgcAVTl_9e1oIuDCrGi9OltJh4oEL1swZB0KCUIyyERUG6aTl9-NGaO7ZSEV4I_4C0Ud-VI6tefxVrmlsniwPAEprGKXMVcO0woXvNXx-HFbZ9IRG1vmGU7K-fIXiFVsM414O7hpyyguyn3AFOqERyE1QHAk087yHpR9Fm720yO4NZqfbcqyG5TEO9lOzW6imXeR32Cuw5DD-ock7ylZg9esK-BAsJogvLxHuoPyiL0ij-0LbR-9Fs7F2_SkFXpBSvgi8mBveFcJXA52HyypwoiZ15iZT46jzDp5DzAnOLcNOyrXOX83Wzx4NXK-C0vxXz8KDQkdIrNzwZ6KVWHxc41mLTVicfIgpahVz2iWdANT8wctl1tW_j0ljOOM7UsO4oTiS5TW8vHfGv65tcMtDfs4-Wh3tJUclycPhxgyl2-HmmfhtJOxMjgaO6tShwPON90GtcTcuGzy28aoBLS_AKOLn-R3OKMZjReRgvEk4X9p7b_mla-ZR9A-vY_T4TKwCBb7fBXo-z9dmWNou6ECMrhBSTANBkqXV6sP-2bWpAmO1OXW2J-nXVTO8mDuAWFOWBHscTbOEcA6N48I8RZyQmr8cpGF3dV_0qAFFZqYKbIkf82U9txn2SCpEeFA8vjtkh6M0blhrmfkY8%3D"
+//   },
+//   "payment": {
+//     "instructedAmount": {
+//       "amount": "20.00",
+//       "currency": "EUR"
+//     },
+//     "paymentMethod": "PIS",
+//     "providerCountryCode": "DE",
+//     "remittanceInformationUnstructured": "20.00 EUR"
+//   }
+// });
+
+// var requestOptions = {
+//   method: 'POST',
+//   headers: myHeaders,
+//   body: raw,
+//   redirect: 'follow'
+// };
+
+// const requestOptions = {
+//   method: 'PUT',
+//   headers: myHeaders,
+//   body: raw,
+//   redirect: 'follow'
+// };
+
+
+
+
+// fetch("https://api-support-aws.sensedia.com/csp/prd/merchant/payments", requestOptions)
+//   .then(response => response.text())
+//   .then(result => console.log(result))
+//   .catch(error => console.log('error', error));
+
+const uriPOST = "http://192.168.1.7:8080/user"
+
+const uriGET = "http://api.local.com:8080/"
+
+ </script>
+
+</body>
+</html>
