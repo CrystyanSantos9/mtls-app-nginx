@@ -14,7 +14,7 @@ openssl req \
   -out server.csr \
   -nodes \
   -days 30 \
-  -subj "/CN=api.local.com" && \
+  -subj "/CN=api-mtls-aws.cryss.dev" && \
  sleep 2
 
   openssl x509 \

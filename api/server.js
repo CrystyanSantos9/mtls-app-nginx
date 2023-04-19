@@ -34,9 +34,12 @@ app.use(express.json())
 app.get('/', (req, res) => {
     const headers = req.headers
     console.log("Headers from client >>> ", headers)
-    setTimeout(()=>
 
-     res.send(headers), 15*1000)
+    res.statusCode = 200
+    res.send(headers)
+    // setTimeout(()=>
+
+    //  res.send(headers), 15*1000)
     // res.destroy(), 9*1000)
 });
 
